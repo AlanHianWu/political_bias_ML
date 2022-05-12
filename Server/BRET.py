@@ -2,8 +2,8 @@
 # install these
 # pip install tensorflow_hub
 # pip install keras tf-models-official pydot graphviz
-# pip install bert-tensorflow - Brendan
-# scipy too - Brendan
+
+
 
 # imports =====================================
 from sklearn.preprocessing import LabelEncoder
@@ -11,14 +11,13 @@ import numpy as np
 from numpy.testing import rundocs
 import official.nlp.bert.bert_models
 from official.nlp import bert
-#import bert # Brendan
-#import bert_tensorflow # Brendan
+#import bert 
+#import bert_tensorflow 
 import matplotlib.pyplot as plt
-# import tokenization # Brendan
-import os # Brendan
-import tensorflow as tf # Brendan
-# import bert # Brendan
-# from bert import bert_tokenization # Brendan
+# import tokenization 
+import os 
+import tensorflow as tf 
+
 # =============================================
 
 

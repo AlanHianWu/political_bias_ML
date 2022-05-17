@@ -11,9 +11,19 @@ class get_news():
     def get_all_news(self):
         pass
     
-    def get_single_news(self):
-        pass
-    
+    def get_single_news(self, url):
+        
+        paper = newspaper.build(url)
+
+        for article in paper.articles:
+            #article url
+            pass
+        
+        for category in paper.category_urls():
+            pass
+            
+
+
 
 def task(message):
     sleep(2)

@@ -1,15 +1,15 @@
 # scaraper for the political bias chart
 
-# There's a handy API to call 
+# There's a handy API to call
 # API = https://app.adfontesmedia.com/api
 
-import requests
+import requests, json
 
 def main():
     '''Get the latest political bias data from adfont'''
     response = requests.get('https://app.adfontesmedia.com/api')
-    print(response.json())
-
+    with open('Data_Collection_And_Filtering/Scraper/chart_data.json', 'w') as f:
+        json.dump(response.json(), f)
 
 if __name__ == '__main__':
     main()

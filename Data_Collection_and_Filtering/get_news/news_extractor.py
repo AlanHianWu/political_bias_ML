@@ -1,43 +1,59 @@
-import newspaper
+from matplotlib.font_manager import json_load
 from newspaper import Article
-import csv
+import json, newspaper
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
 
-all_papers = []
-
-
-with open("./data/adfontesmedia.csv", "r") as news_websites:
-    news = csv.reader(news_websites)
-    next(news)
-    for line in news:
-        all_papers.append((line[1], line[2]))
-
-working_urls = []
-
-for paper in all_papers[15:17]:
-    print("building", paper)
-    news_paper = newspaper.build(paper[0])
-    for article in news_paper.articles:
-        print(article.url)
-        working_urls.append((article.url, paper[1]))
-
-print(working_urls)
-
-for url in working_urls:
-    try:
-        article = Article(url[0])
-        article.download()
-        article.parse()
+class get_news():
+    def __init__(self):
+        pass
     
-        data = [article.text, url[1]]    
+    def get_all_news(self):
+        pass
+    
+    def get_single_news(self):
+        pass
+    
 
-        with open('articles_data.tsv', 'a', newline='') as f_output:
-            tsv_output = csv.writer(f_output, delimiter='\t')
-            tsv_output.writerow(data)
+def task(message):
+    sleep(2)
+    return message
     
-    
-        # with open("./articles/" + article.title + "txt", "w") as new_article:
-        #     new_article.write(article.text)
-    except:
-        print("not working")
+def test():
+    executor = ThreadPoolExecutor(5)
+    future = executor.submit(task, ('completed'))
+    print(future.done())
+    sleep(2)
+    print(future.done())
+    print(future.result())
+
+
+def main():
+    '''Be a bit careful here with handling the data, there is a lot of details, like this goes into specific articles etc'''
+    '''example segment:
+        {"article_id": 18194, 
+        "source_id": 1169, 
+        "url": "https://www.readtangle.com/p/united-states-biden-strike-syria", 
+        "score_count": 3, 
+        "domain": ".readtangle.com", 
+        "main_url": "https://www.readtangle.com", 
+        "moniker_name": "Tangle", 
+        "image_path": "www_readtangle_com.png", 
+        "reach": 4100, "mediatype": 2, 
+        "article_count": 3, 
+        "bias": 0.0, 
+        "reliability": 43.33333, 
+        "all_metrics": {"15": 0.0, "16": 0.0, "17": 0.0, "22": 0.0, "26": 43.0, "27": 43.0, "28": 44.0, "32": 43.33333, "34": 43.0}}'''
+
+    data = json_load('Data_Collection_And_Filtering/Scraper/chart_data.json')
+    for i in data:
+        print(i['moniker_name'], i['url'], i["bias"])
+
+    newspaper.build()
+
+
+if __name__ == '__main__':
+    test()
+    # main()
 
 

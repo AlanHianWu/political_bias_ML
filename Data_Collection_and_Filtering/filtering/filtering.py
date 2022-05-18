@@ -2,7 +2,9 @@ from political_news_filter import Classifier
 from tqdm import tqdm
 import csv
 
-def my_filter(file):
+'''filter out news to only political news'''
+
+def filter(file):
     classifier = Classifier()
     output_articles = []
     output_bias = []
@@ -29,6 +31,6 @@ def my_filter(file):
 
 
 if __name__ == "__main__":
-    my_filter("temp")
+    filter("articles_data00.tsv")
     # f = filter_news(news)
     # print(len(f))

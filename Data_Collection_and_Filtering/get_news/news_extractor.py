@@ -8,6 +8,7 @@ from torch import chunk
 from tqdm import tqdm
 from itertools import islice
 
+'''class that uses the newpaper3k to get the latest news articles from the json file in scaper'''
 class get_news():
     def __init__(self):
         self.data = {}

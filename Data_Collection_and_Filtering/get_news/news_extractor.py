@@ -7,14 +7,15 @@ from sympy import EX
 from torch import chunk
 from tqdm import tqdm
 from itertools import islice
+from datetime import datetime
+
 
 '''class that uses the newpaper3k to get the latest news articles from the json file in scaper'''
 class get_news():
-    def __init__(self):
+    def __init__(self, workers=100):
         self.data = {}
         self.working_urls = []
-        self.workers = 100
-        pass
+        self.workers = workers
     
     def get_all_news(self):
         executor = ThreadPoolExecutor(self.workers)
@@ -23,9 +24,7 @@ class get_news():
 
             for chunk in self.chunks(self.data, 10):
                 executor.submit(self.get_single_news, (chunk))
-            
-           
-        print('working', len(self.working_urls))
+
         self.download_all_articles()
     
     def download_all_articles(self):
@@ -43,8 +42,9 @@ class get_news():
         
             article.text = " ".join(article.text.split())
             data = [article.text, url[1]]    
+            date = datetime.today().strftime('%Y-%m-%d')
 
-            with open('articles_data00.tsv', 'a', newline='') as f_output:
+            with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 tsv_output = csv.writer(f_output, delimiter='\t')
                 tsv_output.writerow(data)
 
@@ -115,17 +115,6 @@ class get_news():
         else:
             return False
 
-def task(message):
-    sleep(2)
-    return message
-    
-def test():
-    executor = ThreadPoolExecutor(5)
-    future = executor.submit(task, ('completed'))
-    print(future.done())
-    sleep(2)
-    print(future.done())
-    print(future.result())
 
 
 def main():
@@ -152,7 +141,7 @@ def main():
 
 
 if __name__ == '__main__':
-    # test()
+
     main()
 
 

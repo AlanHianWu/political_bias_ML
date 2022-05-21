@@ -1,4 +1,5 @@
-from political_news_filter import Classifier
+from Political_News_Filter.political_news_filter import Classifier
+# from political_news_filter import Classifier
 from tqdm import tqdm
 import csv
 
@@ -8,13 +9,13 @@ def filter(file):
     classifier = Classifier()
     output_articles = []
     output_bias = []
-    with open('large_cleaned_text03.tsv', encoding="utf8", errors="ignore") as f:
+    with open('Data/articles_data00.tsv', encoding="utf8", errors="ignore") as f:
         reader = csv.reader(f, delimiter="\t")
         for row in reader:
             output_articles.append(row[0])
             output_bias.append(row[1])
 
-    with open('political_filtered_articles06.tsv', 'a') as out_file:
+    with open('Data/political_filtered_articles00.tsv', 'a') as out_file:
         tsv_writer = csv.writer(out_file, delimiter="\t")
         
         print("starting AI")

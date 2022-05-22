@@ -1,10 +1,9 @@
 from matplotlib.font_manager import json_load
 from newspaper import Article
 import json, newspaper, copy, concurrent.futures, csv
+import glob
+import os
 from concurrent.futures import ThreadPoolExecutor
-from time import sleep
-from sympy import EX
-from torch import chunk
 from tqdm import tqdm
 from itertools import islice
 from datetime import datetime
@@ -42,7 +41,7 @@ class get_news():
         
             article.text = " ".join(article.text.split())
             data = [article.text, url[1]]    
-            date = datetime.today().strftime('%Y-%m-%d')
+            date = datetime.today().strftime('%Y_%m_%d')
 
             with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 tsv_output = csv.writer(f_output, delimiter='\t')
@@ -90,7 +89,10 @@ class get_news():
         
         #update self.data with json file
 
-        data = json_load('Data_Collection_And_Filtering/Scraper/chart_data.json')
+        list_of_files = glob.glob('Data_Collection_And_Filtering/Scraper/*.json') # * means all if need specific format then *.csv
+        latest_file = max(list_of_files, key=os.path.getctime)
+
+        data = json_load(latest_file)
         for i in data:
             self.data[i['domain']] = {'main_url': i['main_url'],
                                       'url': i['url'], 

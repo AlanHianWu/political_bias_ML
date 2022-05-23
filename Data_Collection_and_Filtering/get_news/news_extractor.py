@@ -1,6 +1,6 @@
 from matplotlib.font_manager import json_load
 from newspaper import Article
-import json, newspaper, copy, concurrent.futures, csv
+import json, newspaper, copy, concurrent.futures, csv, multiprocessing
 import glob
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -21,7 +21,7 @@ class get_news():
 
         with ThreadPoolExecutor(max_workers=self.workers) as executor:
 
-            for chunk in self.chunks(self.data, 10):
+            for chunk in self.dict_chunks(self.data, 10):
                 executor.submit(self.get_single_news, (chunk))
 
         self.download_all_articles()
@@ -31,6 +31,15 @@ class get_news():
 
         for url in self.working_urls:
             self.download_articles(url)
+    
+    '''multi threaded implementation'''
+    def download_all_articles_threaded(self):
+        print('\nTHREADS START\n')
+
+        with ThreadPoolExecutor(max_workers=self.workers) as executor:
+            lock = multiprocessing.Lock()
+            for chunk in self.list_chunks(self.working_urls, 10):
+                executor.submit(self.download_articles_threaded, (chunk, lock))
 
 
     def download_articles(self, url):
@@ -46,6 +55,27 @@ class get_news():
             with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 tsv_output = csv.writer(f_output, delimiter='\t')
                 tsv_output.writerow(data)
+
+        except Exception as e:
+            print('fail write', e)
+    
+    '''multi threaded implementation'''
+    def download_articles_threaded(self, urls, lock):
+        try:
+            for url in urls:
+                '''aquire lock'''
+                with lock:
+                    article = Article(url[0])
+                    article.download()
+                    article.parse()
+                
+                    article.text = " ".join(article.text.split())
+                    data = [article.text, url[1]]    
+                    date = datetime.today().strftime('%Y_%m_%d')
+
+                    with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
+                        tsv_output = csv.writer(f_output, delimiter='\t')
+                        tsv_output.writerow(data)
 
         except Exception as e:
             print('fail write', e)
@@ -102,18 +132,30 @@ class get_news():
                                       'article_count': i['article_count'], 
                                       'reliability': i['reliability']}
 
-        '''update self.data'''
-        # print(len(self.data))
 
     '''split data into chunks for thrends'''
-
-    def chunks(self, data, SIZE=1):
+    @staticmethod
+    def dict_chunks(data, SIZE=1):
+        '''put in check data == dictionary type'''
         lenght = len(data)
 
         if SIZE <= lenght and SIZE >= 1:
             it = iter(data)
             for i in range(0, lenght, SIZE):
+                '''need to study this list/dict comprehension'''
                 yield {k:data[k] for k in islice(it, SIZE)}
+    
+        else:
+            return False
+    
+    @staticmethod
+    def list_chunks(data, SIZE=1):
+        '''put in check data == list type'''
+        lenght = len(data)
+
+        if SIZE <= lenght:
+            for i in range(0, lenght, SIZE):
+                yield data[i:i+SIZE]
         else:
             return False
 
@@ -128,8 +170,13 @@ def main():
     
     # gn.download_all_articles()
     
+    gn.download_all_articles_threaded()
     # data = {1:1, 2:2, 3:3, 4:4, 5:5}
-    # for n in  gn.chunks(data, 5):
+    # for n in  gn.dict_chunks(data, 5):
+    #   print(n)
+    
+    # lst = [1,2,3,4,5,6]
+    # for n in  gn.list_chunks(lst, 2):
     #   print(n)  
     
     

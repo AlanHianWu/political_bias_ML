@@ -1,5 +1,15 @@
 import pandas as pd
-import re, nltk
+import re
+
+'''stop words'''
+from nltk.corpus import stopwords
+# nltk.download('stopwords') '''might need to download or update stopwords'''
+
+'''steming'''
+from nltk.stem import PorterStemmer
+
+'''lemmatization'''
+from nltk.stem import WordNetLemmatizer
 
 
 '''Class to preform data preprocessing'''
@@ -7,7 +17,7 @@ class Preprocessing(object):
 
     def __init__(self):
         '''stop words only for english'''
-        self.STOPWORDS = set(nltk.stopwords.words('english'))
+        self.STOPWORDS = set(stopwords.words('english'))
         pass
 
     '''Remove special characters'''
@@ -27,22 +37,30 @@ class Preprocessing(object):
     '''cons:
         * it can suffer from over stemming or under stemming'''
     def stem_words(self, text):
-        return None
+        stemmer = PorterStemmer()
+        return stemmer.stem(text)
     
     '''lemmatization 
         resolving words to their dictionary form
         much better but needs lots more power'''
     
     def lemma_words(self, text):
-        return None
+        lemmatizer = WordNetLemmatizer()
+        return lemmatizer.lemmatize(text)
     
-
+    '''case convert, convert all case of words to lower'''
+    def lower_case(self, text):
+        return text.lower()
+    
+    '''remove white space/ emtpy data'''
 
 
 
 def main():
     pass
-
+    # pp = Preprocessing()
+    # stemmed = pp.stem_words('')
+    # print(stemmed)
 
 if __name__ == '__main__':
     main()

@@ -101,9 +101,6 @@ def split_all(row):
             new = []
 
     return res
-            
-        
-
 
 if __name__ == "__main__":
     # clean_file(sys.argv[1])

@@ -1,12 +1,15 @@
+'''imports'''
 from matplotlib.font_manager import json_load
 from newspaper import Article
-import json, newspaper, copy, concurrent.futures, csv, multiprocessing
-import glob
-import os
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 from itertools import islice
 from datetime import datetime
+
+import newspaper, csv, multiprocessing, glob, os\
+    
+'''implement pandas for csv function since data set is big'''
+import pandas as pd
 
 
 '''class that uses the newpaper3k to get the latest news articles from the json file in scaper'''
@@ -16,6 +19,43 @@ class get_news():
         self.working_urls = []
         self.workers = workers
     
+    '''get the lastest json data from the API call'''
+    def get_latest_data(self):
+
+        '''Be a bit careful here with handling the data, there is a lot of details, like this goes into specific articles etc'''
+        '''format json'''
+
+        '''example segment:
+        {"article_id": 18194, 
+        "source_id": 1169, 
+        "url": "https://www.readtangle.com/p/united-states-biden-strike-syria", 
+        "score_count": 3, 
+        "domain": ".readtangle.com", 
+        "main_url": "https://www.readtangle.com", 
+        "moniker_name": "Tangle", 
+        "image_path": "www_readtangle_com.png", 
+        "reach": 4100, 
+        "mediatype": 2, 
+        "article_count": 3, 
+        "bias": 0.0, 
+        "reliability": 43.33333, 
+        "all_metrics": {"15": 0.0, "16": 0.0, "17": 0.0, "22": 0.0, "26": 43.0, "27": 43.0, "28": 44.0, "32": 43.33333, "34": 43.0}}'''
+        '''gets the latest Data from https://app.adfontesmedia.com/api'''
+
+        list_of_files = glob.glob('Data_Collection_And_Filtering/Scraper/*.json')
+        latest_file = max(list_of_files, key=os.path.getctime)
+
+        data = json_load(latest_file)
+        for i in data:
+            self.data[i['domain']] = {'main_url': i['main_url'],
+                                      'url': i['url'], 
+                                      'bias': i['bias'], 
+                                      'score_count': i['score_count'], 
+                                      'reach': i['reach'], 
+                                      'article_count': i['article_count'], 
+                                      'reliability': i['reliability']}
+
+    '''thread get news meathod with workers set to 100 default'''
     def get_all_news(self):
         executor = ThreadPoolExecutor(self.workers)
 
@@ -25,6 +65,18 @@ class get_news():
                 executor.submit(self.get_single_news, (chunk))
 
         self.download_all_articles()
+    
+    def get_single_news(self, chunk):
+            
+        '''needs to be threaded'''
+        for domain in tqdm(chunk.keys(), desc="building webpages....."):
+            # for domain in chunk.keys():
+            try:
+                paper = newspaper.build(chunk[domain]['main_url'])
+                for article in paper.articles:
+                    self.working_urls.append((article.url, chunk[domain]['bias']))
+            except Exception as e:
+                print('fail to build paper', e)
     
     def download_all_articles(self):
         print('\nSTART\n')
@@ -53,6 +105,7 @@ class get_news():
             date = datetime.today().strftime('%Y_%m_%d')
 
             with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
+                '''need to fix write utf-8 error'''
                 tsv_output = csv.writer(f_output, delimiter='\t')
                 tsv_output.writerow(data)
 
@@ -63,74 +116,25 @@ class get_news():
     def download_articles_threaded(self, urls, lock):
         try:
             for url in urls:
+    
+                article = Article(url[0])
+                article.download()
+                article.parse()
+            
+                article.text = " ".join(article.text.split())
+
                 '''aquire lock'''
+                ''''need better lock system right now no difference in performance'''
                 with lock:
-                    article = Article(url[0])
-                    article.download()
-                    article.parse()
-                
-                    article.text = " ".join(article.text.split())
                     data = [article.text, url[1]]    
                     date = datetime.today().strftime('%Y_%m_%d')
-
                     with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
-                        tsv_output = csv.writer(f_output, delimiter='\t')
+                        '''need to fix write utf-8 error'''
+                        tsv_output = csv.writer(f_output, encoding="utf-8", delimiter='\t')
                         tsv_output.writerow(data)
 
         except Exception as e:
             print('fail write', e)
-        
-
-    def get_single_news(self, chunk):
-        
-        '''needs to be threaded'''
-        for domain in tqdm(chunk.keys(), desc="building webpages....."):
-        # for domain in chunk.keys():
-            try:
-                
-                paper = newspaper.build(chunk[domain]['main_url'])
-                
-                for article in paper.articles:
-                    self.working_urls.append((article.url, chunk[domain]['bias']))
-            except Exception as e:
-                print('fail to build paper', e)
-                pass
-
-    
-    def get_latest_data(self):
-        
-        '''Be a bit careful here with handling the data, there is a lot of details, like this goes into specific articles etc'''
-        '''example segment:
-        {"article_id": 18194, 
-        "source_id": 1169, 
-        "url": "https://www.readtangle.com/p/united-states-biden-strike-syria", 
-        "score_count": 3, 
-        "domain": ".readtangle.com", 
-        "main_url": "https://www.readtangle.com", 
-        "moniker_name": "Tangle", 
-        "image_path": "www_readtangle_com.png", 
-        "reach": 4100, 
-        "mediatype": 2, 
-        "article_count": 3, 
-        "bias": 0.0, 
-        "reliability": 43.33333, 
-        "all_metrics": {"15": 0.0, "16": 0.0, "17": 0.0, "22": 0.0, "26": 43.0, "27": 43.0, "28": 44.0, "32": 43.33333, "34": 43.0}}'''
-        '''gets the latest Data from https://app.adfontesmedia.com/api'''
-        
-        #update self.data with json file
-
-        list_of_files = glob.glob('Data_Collection_And_Filtering/Scraper/*.json') # * means all if need specific format then *.csv
-        latest_file = max(list_of_files, key=os.path.getctime)
-
-        data = json_load(latest_file)
-        for i in data:
-            self.data[i['domain']] = {'main_url': i['main_url'],
-                                      'url': i['url'], 
-                                      'bias': i['bias'], 
-                                      'score_count': i['score_count'], 
-                                      'reach': i['reach'], 
-                                      'article_count': i['article_count'], 
-                                      'reliability': i['reliability']}
 
 
     '''split data into chunks for thrends'''
@@ -184,10 +188,6 @@ def main():
 
     # for article in cnn_paper.articles:
     #     print(article.url)
-
-
-
-
 
 if __name__ == '__main__':
 

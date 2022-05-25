@@ -2,7 +2,8 @@ import Data_Preprocessing
 
 
 def main():
-    pass
+    dp = Data_Preprocessing()
+    '''do file operations here'''
 
 
 if __name__ == '__main__':

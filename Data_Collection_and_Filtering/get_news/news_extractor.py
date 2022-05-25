@@ -1,4 +1,5 @@
 '''imports'''
+from base64 import encode
 from matplotlib.font_manager import json_load
 from newspaper import Article
 from concurrent.futures import ThreadPoolExecutor
@@ -41,8 +42,12 @@ class get_news():
         "reliability": 43.33333, 
         "all_metrics": {"15": 0.0, "16": 0.0, "17": 0.0, "22": 0.0, "26": 43.0, "27": 43.0, "28": 44.0, "32": 43.33333, "34": 43.0}}'''
         '''gets the latest Data from https://app.adfontesmedia.com/api'''
+        
+        
+        current_dir =  os.path.abspath(os.path.dirname(__file__))
+        json_dir = os.path.abspath(current_dir + "/../Data/Scraper")
 
-        list_of_files = glob.glob('Data_Collection_And_Filtering/Scraper/*.json')
+        list_of_files = glob.glob(json_dir + '/*.json')
         latest_file = max(list_of_files, key=os.path.getctime)
 
         data = json_load(latest_file)
@@ -103,10 +108,14 @@ class get_news():
             article.text = " ".join(article.text.split())
             data = [article.text, url[1]]    
             date = datetime.today().strftime('%Y_%m_%d')
+            
+            current_dir =  os.path.abspath(os.path.dirname(__file__))
+            Data_dir = os.path.abspath(current_dir + "/../../Data/")
+                
 
-            with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
+            with open(Data_dir + 'articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 '''need to fix write utf-8 error'''
-                tsv_output = csv.writer(f_output, delimiter='\t')
+                tsv_output = csv.writer(f_output, encode='utf-8',delimiter='\t')
                 tsv_output.writerow(data)
 
         except Exception as e:
@@ -122,13 +131,15 @@ class get_news():
                 article.parse()
             
                 article.text = " ".join(article.text.split())
+                current_dir =  os.path.abspath(os.path.dirname(__file__))
+                Data_dir = os.path.abspath(current_dir + "/../../Data/")
 
                 '''aquire lock'''
                 ''''need better lock system right now no difference in performance'''
                 with lock:
                     data = [article.text, url[1]]    
                     date = datetime.today().strftime('%Y_%m_%d')
-                    with open('Data/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
+                    with open(Data_dir + '/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                         '''need to fix write utf-8 error'''
                         tsv_output = csv.writer(f_output, encoding="utf-8", delimiter='\t')
                         tsv_output.writerow(data)

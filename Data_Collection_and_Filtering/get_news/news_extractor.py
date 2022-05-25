@@ -6,7 +6,7 @@ from tqdm import tqdm
 from itertools import islice
 from datetime import datetime
 
-import newspaper, csv, multiprocessing, glob, os\
+import newspaper, csv, multiprocessing, glob, os
     
 '''implement pandas for csv function since data set is big'''
 import pandas as pd
@@ -192,5 +192,3 @@ def main():
 if __name__ == '__main__':
 
     main()
-
-

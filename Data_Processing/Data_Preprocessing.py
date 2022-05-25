@@ -1,6 +1,12 @@
 import pandas as pd
 import re
 
+'''for concurrent'''
+from concurrent.futures import ThreadPoolExecutor
+
+'''might need processes'''
+from multiprocessing import Process
+
 '''stop words'''
 from nltk.corpus import stopwords
 # nltk.download('stopwords') '''might need to download or update stopwords'''
@@ -11,14 +17,15 @@ from nltk.stem import PorterStemmer
 '''lemmatization'''
 from nltk.stem import WordNetLemmatizer
 
-
 '''Class to preform data preprocessing'''
 class Preprocessing(object):
 
-    def __init__(self):
+    def __init__(self, workers=2):
         '''stop words only for english'''
         self.STOPWORDS = set(stopwords.words('english'))
-        pass
+        
+        '''for now used to define concurrent workers count'''
+        self.workers = workers
 
     '''Remove special characters'''
     def remove_special_characters(self, text, remove_digits=True):
@@ -53,7 +60,17 @@ class Preprocessing(object):
         return text.lower()
     
     '''remove white space/ emtpy data'''
-
+    def remove_emtpy(self, text):
+        pass
+    
+    '''interesting one to do, needs to hard remove duplicates in the entire dataset'''
+    def remove_dups(self, text):
+        pass
+    
+    '''always a big headache, need to truncate the data so it fits the ram size and 
+       retains the info'''
+    def truncate(self, text, length):
+        pass
 
 
 def main():

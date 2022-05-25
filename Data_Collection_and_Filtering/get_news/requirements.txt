@@ -1,0 +1,5 @@
+matplotlib==3.4.3
+newspaper==0.1.0.7
+newspaper3k==0.2.8
+pandas==1.3.4
+tqdm==4.62.3

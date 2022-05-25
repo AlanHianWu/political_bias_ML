@@ -71,6 +71,29 @@ class Preprocessing(object):
        retains the info'''
     def truncate(self, text, length):
         pass
+    
+    '''idea here is to remove stuff that does not make sense'''
+    def grammer_check():
+        pass
+    
+    '''language check'''
+    '''should only foucus on English'''
+    def language_check():
+        pass
+    
+    
+    '''use relative pathing to find the latest data file'''
+    @staticmethod
+    def get_latest_data_file():
+        current_dir =  os.path.abspath(os.path.dirname(__file__))
+        json_dir = os.path.abspath(current_dir + "/../Data")
+        list_of_files = glob.glob(json_dir + '/*.tsv')
+        latest_file = max(list_of_files, key=os.path.getctime)
+
+        '''data not clean yet'''    
+        df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
+        
+        print(df.head())
 
 
 def main():
@@ -78,15 +101,7 @@ def main():
     # pp = Preprocessing()
     # stemmed = pp.stem_words('')
     # print(stemmed)
-    current_dir =  os.path.abspath(os.path.dirname(__file__))
-    json_dir = os.path.abspath(current_dir + "/../Data")
-    list_of_files = glob.glob(json_dir + '/*.tsv')
-    latest_file = max(list_of_files, key=os.path.getctime)
-
-    '''data not clean yet'''    
-    df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
     
-    print(df.head())
 
 if __name__ == '__main__':
     main()

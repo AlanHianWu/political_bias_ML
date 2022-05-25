@@ -1,5 +1,4 @@
 '''imports'''
-from base64 import encode
 from matplotlib.font_manager import json_load
 from newspaper import Article
 from concurrent.futures import ThreadPoolExecutor
@@ -45,7 +44,7 @@ class get_news():
         
         
         current_dir =  os.path.abspath(os.path.dirname(__file__))
-        json_dir = os.path.abspath(current_dir + "/../Data/Scraper")
+        json_dir = os.path.abspath(current_dir + "/../Scraper")
 
         list_of_files = glob.glob(json_dir + '/*.json')
         latest_file = max(list_of_files, key=os.path.getctime)
@@ -115,7 +114,7 @@ class get_news():
 
             with open(Data_dir + 'articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 '''need to fix write utf-8 error'''
-                tsv_output = csv.writer(f_output, encode='utf-8',delimiter='\t')
+                tsv_output = csv.writer(f_output, delimiter='\t')
                 tsv_output.writerow(data)
 
         except Exception as e:
@@ -141,7 +140,7 @@ class get_news():
                     date = datetime.today().strftime('%Y_%m_%d')
                     with open(Data_dir + '/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                         '''need to fix write utf-8 error'''
-                        tsv_output = csv.writer(f_output, encoding="utf-8", delimiter='\t')
+                        tsv_output = csv.writer(f_output, delimiter='\t')
                         tsv_output.writerow(data)
 
         except Exception as e:

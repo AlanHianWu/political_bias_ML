@@ -1,5 +1,5 @@
 import pandas as pd
-import re
+import re, os, glob
 
 '''for concurrent'''
 from concurrent.futures import ThreadPoolExecutor
@@ -21,13 +21,13 @@ from nltk.stem import WordNetLemmatizer
 class Preprocessing(object):
 
     def __init__(self, workers=2):
-        '''stop words only for english'''
+        #stop words only for english
         self.STOPWORDS = set(stopwords.words('english'))
         
         '''for now used to define concurrent workers count'''
         self.workers = workers
 
-    '''Remove special characters'''
+    #Remove special characters
     def remove_special_characters(self, text, remove_digits=True):
         pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
         text = re.sub(pattern, '', text)
@@ -78,6 +78,15 @@ def main():
     # pp = Preprocessing()
     # stemmed = pp.stem_words('')
     # print(stemmed)
+    current_dir =  os.path.abspath(os.path.dirname(__file__))
+    json_dir = os.path.abspath(current_dir + "/../Data")
+    list_of_files = glob.glob(json_dir + '/*.tsv')
+    latest_file = max(list_of_files, key=os.path.getctime)
+
+    '''data not clean yet'''    
+    df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
+    
+    print(df.head())
 
 if __name__ == '__main__':
     main()

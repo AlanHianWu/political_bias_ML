@@ -1,2 +1,3 @@
-Data_Collection_And_Filtering/filtering/Political_News_Filter/pon_classifier
-Data_Collection_And_Filtering/filtering/Data
+src/Data_Collection_And_Filtering/filtering/Political_News_Filter/pon_classifier
+src/Data_Collection_And_Filtering/filtering/Political_News_Filter/
+src/Data_Collection_And_Filtering/filtering/Data

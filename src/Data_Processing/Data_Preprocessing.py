@@ -20,12 +20,25 @@ from nltk.stem import WordNetLemmatizer
 '''Class to preform data preprocessing'''
 class Preprocessing(object):
 
-    def __init__(self, workers=2):
+    def __init__(self, file=None, workers=2):
+        
+        if file == None:
+            self.file = self.get_latest_data_file()
+        else:
+            try:
+                with open(file) as f:
+                    self.file = pd.read_csv(f, sep='\t', encoding='latin-1')
+            except Exception as e:
+                print('file does not found', e)
+
+        
         #stop words only for english
         self.STOPWORDS = set(stopwords.words('english'))
         
         '''for now used to define concurrent workers count'''
         self.workers = workers
+        
+        self.file = self.get_latest_data_file()
 
     #Remove special characters
     def remove_special_characters(self, text, remove_digits=True):
@@ -94,21 +107,28 @@ class Preprocessing(object):
     @staticmethod
     def get_latest_data_file():
         current_dir =  os.path.abspath(os.path.dirname(__file__))
-        json_dir = os.path.abspath(current_dir + "/../Data")
-        list_of_files = glob.glob(json_dir + '/*.tsv')
+        dir_path = os.path.abspath(current_dir + "/../Data")
+        list_of_files = glob.glob(dir_path + '/*.tsv')
         latest_file = max(list_of_files, key=os.path.getctime)
 
         '''data not clean yet'''    
         df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
         
+        
         print(df.head())
-
+        
+        return df
+    
+    '''return self.file'''
+    def file(self):
+        return self.file
 
 def main():
     pass
-    # pp = Preprocessing()
+    pp = Preprocessing()
     # stemmed = pp.stem_words('')
     # print(stemmed)
+    pp.get_latest_data_file()
     
 
 if __name__ == '__main__':

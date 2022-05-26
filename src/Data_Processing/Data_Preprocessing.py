@@ -37,13 +37,21 @@ class Preprocessing(object):
         
         '''for now used to define concurrent workers count'''
         self.workers = workers
-        
-        self.file = self.get_latest_data_file()
 
     #Remove special characters
     def remove_special_characters(self, text, remove_digits=True):
         pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
         text = re.sub(pattern, '', text)
+        return text
+    
+    #Remove special characters with threading
+    def remove_special_characters_multi(self, text, remove_digits=True):
+        if not remove_digits:
+            pattern = r'[^a-zA-Z0-9\s]' 
+        else:
+            pattern = r'[^a-zA-Z\s]'
+        text = re.sub(pattern, '', text)
+
         return text
 
     '''useless words are know as stopwords this function is here to get rid of stop words,
@@ -63,7 +71,6 @@ class Preprocessing(object):
     '''lemmatization 
         resolving words to their dictionary form
         much better but needs lots more power'''
-    
     def lemma_words(self, text):
         lemmatizer = WordNetLemmatizer()
         return lemmatizer.lemmatize(text)
@@ -83,6 +90,7 @@ class Preprocessing(object):
     '''always a big headache, need to truncate the data so it fits the ram size and 
        retains the info'''
     def truncate(self, text, length):
+        '''idea smart truncate refrase the sentence to somethig shorter??'''
         pass
     
     '''idea here is to remove stuff that does not make sense'''
@@ -102,23 +110,25 @@ class Preprocessing(object):
     def split(self, text):
         pass
     
+    '''test to see what changes where made'''
+    def document_similarity_test(self):
+        return None
+    
     
     '''use relative pathing to find the latest data file'''
     @staticmethod
     def get_latest_data_file():
         current_dir =  os.path.abspath(os.path.dirname(__file__))
-        dir_path = os.path.abspath(current_dir + "/../Data")
+        dir_path = os.path.abspath(current_dir + "/../../Data")
         list_of_files = glob.glob(dir_path + '/*.tsv')
         latest_file = max(list_of_files, key=os.path.getctime)
 
         '''data not clean yet'''    
         df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
-        
-        
-        print(df.head())
+
+        # print(df.head())
         
         return df
-    
     '''return self.file'''
     def file(self):
         return self.file
@@ -128,8 +138,10 @@ def main():
     pp = Preprocessing()
     # stemmed = pp.stem_words('')
     # print(stemmed)
-    pp.get_latest_data_file()
-    
+    # pp.get_latest_data_file()
+    re = pp.remove_special_characters_multi('haha!@#$%')
+    print(re)
+
 
 if __name__ == '__main__':
     main()

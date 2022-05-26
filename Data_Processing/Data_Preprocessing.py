@@ -54,12 +54,12 @@ class Preprocessing(object):
     def lemma_words(self, text):
         lemmatizer = WordNetLemmatizer()
         return lemmatizer.lemmatize(text)
-    
+
     '''case convert, convert all case of words to lower'''
     def lower_case(self, text):
         return text.lower()
     
-    '''remove white space/ emtpy data'''
+    '''remove white space / emtpy data'''
     def remove_emtpy(self, text):
         pass
     
@@ -78,7 +78,15 @@ class Preprocessing(object):
     
     '''language check'''
     '''should only foucus on English'''
-    def language_check():
+    def language_check(self, text):
+        pass
+    
+    '''should use to clean up text'''
+    def clean_text(self, text):
+        pass
+    
+    '''used to split text bias to certain categories'''
+    def split(self, text):
         pass
     
     

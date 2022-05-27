@@ -3,6 +3,7 @@ import re, os, glob
 
 '''for concurrent'''
 from concurrent.futures import ThreadPoolExecutor
+from threading import current_thread
 
 '''might need processes'''
 from multiprocessing import Process
@@ -40,19 +41,44 @@ class Preprocessing(object):
 
     #Remove special characters
     def remove_special_characters(self, text, remove_digits=True):
-        pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
+        # pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
+        # text = re.sub(pattern, '', text)
+        if not remove_digits:
+                pattern = r'[^a-zA-Z0-9\s]' 
+        else:
+            pattern = r'[^a-zA-Z\s]'
+
         text = re.sub(pattern, '', text)
+        print('yo', current_thread())
         return text
     
     #Remove special characters with threading
     def remove_special_characters_multi(self, text, remove_digits=True):
-        if not remove_digits:
-            pattern = r'[^a-zA-Z0-9\s]' 
-        else:
-            pattern = r'[^a-zA-Z\s]'
-        text = re.sub(pattern, '', text)
+        
+        executor = ThreadPoolExecutor(max_workers=10)
 
-        return text
+        with executor:
+            re = []
+            for t in self.remove_special_split(text, 100):
+                future = executor.submit(self.remove_special_characters, (t))
+                '''they will finish at different times order matters ! '''
+                re.append(future.result())
+        return re
+                
+
+
+    '''split input to workers for remove special characters'''
+    @staticmethod
+    def remove_special_split(text, split):
+        '''split works with given split length will return the split in that length eg. '[a,a,a,a,a,a]' split=2 will return
+                                                                                         [a, a]
+                                                                                         [a, a]
+                                                                                         [a, a]
+        '''
+        text = text.split()
+        for i in range(0, len(text), split):
+            yield " ".join(text[i:i+split])
+
 
     '''useless words are know as stopwords this function is here to get rid of stop words,
        this is done by using nltk built in Stop words'''
@@ -135,12 +161,16 @@ class Preprocessing(object):
 
 def main():
     pass
-    pp = Preprocessing()
+    pp = Preprocessing(file=None, workers=10)
     # stemmed = pp.stem_words('')
     # print(stemmed)
     # pp.get_latest_data_file()
-    re = pp.remove_special_characters_multi('haha!@#$%')
-    print(re)
+    # re = pp.remove_special_characters_multi('haha!@#$%')
+    # print(re)
+    
+    t = '''testingone test**ingtwo te^stingthree testingfour testfive @@ingsix testin!gseven testi@ngeight''' * 1000
+    r = pp.remove_special_characters_multi(t)
+    print(r)
 
 
 if __name__ == '__main__':

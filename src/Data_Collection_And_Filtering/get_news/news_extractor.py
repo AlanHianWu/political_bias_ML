@@ -61,7 +61,7 @@ class get_news():
 
     '''thread get news meathod with workers set to 100 default'''
     def get_all_news(self):
-        executor = ThreadPoolExecutor(self.workers)
+        # executor = ThreadPoolExecutor(self.workers)
 
         with ThreadPoolExecutor(max_workers=self.workers) as executor:
 

@@ -58,13 +58,12 @@ class Preprocessing(object):
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             re = []
-            for t in self.remove_special_split(text, 100):
+            for t in self.remove_special_split(text, 2):
                 re.append(executor.submit(self.remove_special_characters, (t)))
                 '''they will finish at different times order matters ! '''
                 # re.append(future.result())
+        # returns a list of future objects
         return re
-                
-
 
     '''split input to workers for remove special characters'''
     @staticmethod
@@ -84,7 +83,7 @@ class Preprocessing(object):
     def remove_stopwords(self, text):
         """custom function to remove the stopwords"""
         return " ".join([word for word in str(text).split() if word not in self.STOPWORDS])
-    
+
     '''steming
        reducing a word to it's stem, meaning eg words ending in "ed", "ing" ect.. gets reduced'''
     '''cons:
@@ -92,7 +91,7 @@ class Preprocessing(object):
     def stem_words(self, text):
         stemmer = PorterStemmer()
         return stemmer.stem(text)
-    
+
     '''lemmatization 
         resolving words to their dictionary form
         much better but needs lots more power'''
@@ -167,7 +166,7 @@ def main():
     # re = pp.remove_special_characters_multi('haha!@#$%')
     # print(re)
     
-    t = '''testingone test**ingtwo te^stingthree testingfour testfive @@ingsix testin!gseven testi@ngeight''' * 1000
+    t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
     r = pp.remove_special_characters_multi(t)
     for f in r:
         print(f.result())

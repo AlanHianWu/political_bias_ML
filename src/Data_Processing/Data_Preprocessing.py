@@ -32,7 +32,6 @@ class Preprocessing(object):
             except Exception as e:
                 print('file does not found', e)
 
-        
         #stop words only for english
         self.STOPWORDS = set(stopwords.words('english'))
         
@@ -53,22 +52,21 @@ class Preprocessing(object):
         return text
     
     # Remove special characters with threading
-    def remove_special_characters_multi(self, text, remove_digits=True):
-        
+    def remove_special_characters_multi(self, text, remove_digits=True, text_length=10):
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             re = []
-            for t in self.remove_special_split(text, 2):
+            for t in self.multi_split(text, text_length):
                 re.append(executor.submit(self.remove_special_characters, (t)))
                 '''they will finish at different times order matters ! '''
                 # re.append(future.result())
         # returns a list of future objects
         return re
 
-    '''split input to workers for remove special characters'''
+    '''split input to workers'''
     @staticmethod
-    def remove_special_split(text, split):
-        '''split works with given split length will return the split in that length eg. '[a,a,a,a,a,a]' split=2 will return
+    def multi_split(text, split):
+        '''split works with given split length will return the split in that length eg. '[a, a, a, a, a, a]' split=2 will return
                                                                                          [a, a]
                                                                                          [a, a]
                                                                                          [a, a]
@@ -83,6 +81,18 @@ class Preprocessing(object):
     def remove_stopwords(self, text):
         """custom function to remove the stopwords"""
         return " ".join([word for word in str(text).split() if word not in self.STOPWORDS])
+    
+    def remove_stopwords_multi(self, text):
+        """custom function to remove the stopwords"""
+        
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            re = []
+            for t in self.multi_split(text, 2):
+                re.append(executor.submit(self.remove_stopwords, (t)))
+        return re
+
+    
+    
 
     '''steming
        reducing a word to it's stem, meaning eg words ending in "ed", "ing" ect.. gets reduced'''
@@ -158,7 +168,6 @@ class Preprocessing(object):
         return self.file
 
 def main():
-    pass
     pp = Preprocessing(file=None, workers=10)
     # stemmed = pp.stem_words('')
     # print(stemmed)

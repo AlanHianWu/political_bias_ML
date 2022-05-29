@@ -31,6 +31,7 @@ class Preprocessing(object):
                     self.file = pd.read_csv(f, sep='\t', encoding='latin-1')
             except Exception as e:
                 print('file does not found', e)
+                self.file = None
 
         #stop words only for english
         self.STOPWORDS = set(stopwords.words('english'))
@@ -52,12 +53,16 @@ class Preprocessing(object):
         return text
     
     # Remove special characters with threading
-    def remove_special_characters_multi(self, text, remove_digits=True, text_length=10):
+    def remove_special_characters_multi(self, text=None, remove_digits=True, text_length=10):
+        if text == None:
+            text = self.file
+
+
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             re = []
             for t in self.multi_split(text, text_length):
-                re.append(executor.submit(self.remove_special_characters, (t)))
+                re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
                 '''they will finish at different times order matters ! '''
                 # re.append(future.result())
         # returns a list of future objects
@@ -75,7 +80,6 @@ class Preprocessing(object):
         for i in range(0, len(text), split):
             yield " ".join(text[i:i+split])
 
-
     '''useless words are know as stopwords this function is here to get rid of stop words,
        this is done by using nltk built in Stop words'''
     def remove_stopwords(self, text):
@@ -91,8 +95,6 @@ class Preprocessing(object):
                 re.append(executor.submit(self.remove_stopwords, (t)))
         return re
 
-    
-    
 
     '''steming
        reducing a word to it's stem, meaning eg words ending in "ed", "ing" ect.. gets reduced'''
@@ -163,9 +165,13 @@ class Preprocessing(object):
         # print(df.head())
         
         return df
+
     '''return self.file'''
     def file(self):
         return self.file
+    
+    
+    '''Idea Have a general threading meathod that takes in meathods and make it threaded'''
 
 def main():
     pp = Preprocessing(file=None, workers=10)

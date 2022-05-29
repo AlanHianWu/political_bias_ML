@@ -51,39 +51,49 @@ class Preprocessing(object):
     def remove_special_characters(self, text, remove_digits=True):
         # pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
         # text = re.sub(pattern, '', text)
+        print('start remove 2', current_thread())
+
         if not remove_digits:
                 pattern = r'[^a-zA-Z0-9\s]' 
         else:
             pattern = r'[^a-zA-Z\s]'
 
         text = re.sub(pattern, '', text)
-        print('yo', current_thread())
         return text
     
     # Remove special characters with threading
-    def remove_special_characters_multi(self, path=None, remove_digits=True, text_length=10):
-        
+    def remove_special_characters_multi(self, text=None, remove_digits=True, text_length=10):
+        print('start remove 1')
+        re = []
+        with ThreadPoolExecutor(max_workers=10) as executor:
+
+            '''need to change df at locations?  '''
+            for t in self.multi_split(text, text_length):
+                re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
+                '''they will finish at different times order matters ! '''
+                # re.append(future.result())
+           
+        # returns a list of future objects
+        return re
+    
+    def test(self, path=None):
         '''should by default perfrom the preprocessing on the given file'''
+        
+        print('test start!!')
+        
         if path == None:
             df = self.file
         else:
             df = self.read_file(path)
-
-
-        with ThreadPoolExecutor(max_workers=10) as executor:
             
-            re = []
             
-            for row in df:
-                text = row.columns[0]
-                '''need to change df at locations?  '''
-                for t in self.multi_split(text, text_length):
-                    re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
-                    '''they will finish at different times order matters ! '''
-                # re.append(future.result())
-        # returns a list of future objects
 
-        return re
+        df.dropna(inplace=True)
+        
+        df.apply(lambda row : self.remove_special_characters_multi(row[0]), axis=1)
+        
+        self.file = df
+        
 
     '''split input to workers'''
     @staticmethod
@@ -93,9 +103,16 @@ class Preprocessing(object):
                                                                                          [a, a]
                                                                                          [a, a]
         '''
-        text = text.split()
-        for i in range(0, len(text), split):
-            yield " ".join(text[i:i+split])
+        if isinstance(text, str):
+            try:
+                # print('test multisplit', type(text))
+                text = text.split()
+                for i in range(0, len(text), split):
+                    yield " ".join(text[i:i+split])
+            except AttributeError as e:
+                print('Failed to split', text, e)
+        else:
+            raise Exception(text, ' is not type str')
 
     '''useless words are know as stopwords this function is here to get rid of stop words,
        this is done by using nltk built in Stop words'''
@@ -139,8 +156,8 @@ class Preprocessing(object):
         return text.lower()
     
     '''remove white space / emtpy data'''
-    def remove_emtpy(self, text):
-        pass
+    def remove_emtpy(self):
+        self.file = self.file.dropna(inplace=True)
     
     '''interesting one to do, needs to hard remove duplicates in the entire dataset'''
     def remove_dups(self, text):
@@ -220,9 +237,12 @@ def main():
     # for f in r:
     #     print(f.result())
     
-    f = pp.file_text()
+    print(pp.file_text().head(2))
+    pp.test()
+    print('AFTER')
+    print(pp.file_text().head(2))
     
-    print(f.head(2))
+    # print(f.head(2))
 
 
 if __name__ == '__main__':

@@ -27,10 +27,14 @@ class Preprocessing(object):
         
         if file == None:
             self.file = self.get_latest_data_file()
+            '''add head'''
+            self.file.loc[-1] = ['news', 'bias']
         else:
             try:
                 with open(file) as f:
                     self.file = pd.read_csv(f, sep='\t', encoding='latin-1')
+                    '''add head'''
+                    self.file.loc[-1] = ['news', 'bias']
             except Exception as e:
                 print('file does not found', e)
                 self.file = None
@@ -57,23 +61,28 @@ class Preprocessing(object):
         return text
     
     # Remove special characters with threading
-    def remove_special_characters_multi(self, text=None, remove_digits=True, text_length=10):
+    def remove_special_characters_multi(self, path=None, remove_digits=True, text_length=10):
         
         '''should by default perfrom the preprocessing on the given file'''
-        if text == None:
-            text = self.file
+        if path == None:
+            df = self.file
         else:
-            self.read_file(text)
-
+            df = self.read_file(path)
 
 
         with ThreadPoolExecutor(max_workers=10) as executor:
+            
             re = []
-            for t in self.multi_split(text, text_length):
-                re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
-                '''they will finish at different times order matters ! '''
+            
+            for row in df:
+                text = row.columns[0]
+                '''need to change df at locations?  '''
+                for t in self.multi_split(text, text_length):
+                    re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
+                    '''they will finish at different times order matters ! '''
                 # re.append(future.result())
         # returns a list of future objects
+
         return re
 
     '''split input to workers'''
@@ -102,6 +111,12 @@ class Preprocessing(object):
             for t in self.multi_split(text, 2):
                 re.append(executor.submit(self.remove_stopwords, (t)))
         return re
+    
+    # '''yield all the rows from data frame'''
+    # @staticmethod
+    # def df_to_rows(df):
+    #     for rows in df:
+    #         yield rows.columns[0], rows.columns[1]
 
 
     '''steming
@@ -181,9 +196,13 @@ class Preprocessing(object):
     
     '''reading in a path and returns a pandas dataframe'''
     def read_file(self, path):
-
-        return pd.read_csv(path, sep='\t', encoding='latin-1')
-        
+        try:
+            f = pd.read_csv(path, sep='\t', encoding='latin-1')
+            return f
+        except Exception as e:
+            print(e)
+            return None
+            
     
     
     '''Idea Have a general threading meathod that takes in meathods and make it threaded'''
@@ -201,7 +220,9 @@ def main():
     # for f in r:
     #     print(f.result())
     
-    print(pp.file_text().head())
+    f = pp.file_text()
+    
+    print(f.head(2))
 
 
 if __name__ == '__main__':

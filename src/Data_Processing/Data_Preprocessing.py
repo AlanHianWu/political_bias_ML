@@ -1,6 +1,8 @@
 import pandas as pd
 import re, os, glob
 
+import scipy as sp
+
 '''for concurrent'''
 from concurrent.futures import ThreadPoolExecutor
 from threading import current_thread
@@ -32,6 +34,8 @@ class Preprocessing(object):
             except Exception as e:
                 print('file does not found', e)
                 self.file = None
+        
+        # print('FILE -> ', self.file.head(1))
 
         #stop words only for english
         self.STOPWORDS = set(stopwords.words('english'))
@@ -54,8 +58,12 @@ class Preprocessing(object):
     
     # Remove special characters with threading
     def remove_special_characters_multi(self, text=None, remove_digits=True, text_length=10):
+        
+        '''should by default perfrom the preprocessing on the given file'''
         if text == None:
             text = self.file
+        else:
+            self.read_file(text)
 
 
 
@@ -164,11 +172,18 @@ class Preprocessing(object):
 
         # print(df.head())
         
+        '''returns dataframe'''
         return df
 
     '''return self.file'''
-    def file(self):
+    def file_text(self):
         return self.file
+    
+    '''reading in a path and returns a pandas dataframe'''
+    def read_file(self, path):
+
+        return pd.read_csv(path, sep='\t', encoding='latin-1')
+        
     
     
     '''Idea Have a general threading meathod that takes in meathods and make it threaded'''
@@ -181,10 +196,12 @@ def main():
     # re = pp.remove_special_characters_multi('haha!@#$%')
     # print(re)
     
-    t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    r = pp.remove_special_characters_multi(t)
-    for f in r:
-        print(f.result())
+    # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
+    # r = pp.remove_special_characters_multi(t)
+    # for f in r:
+    #     print(f.result())
+    
+    print(pp.file_text().head())
 
 
 if __name__ == '__main__':

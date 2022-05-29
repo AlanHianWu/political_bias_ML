@@ -131,7 +131,7 @@ class get_news():
             
                 article.text = " ".join(article.text.split())
                 current_dir =  os.path.abspath(os.path.dirname(__file__))
-                Data_dir = os.path.abspath(current_dir + "/../../Data/")
+                Data_dir = os.path.abspath(current_dir + "/../../../Data/")
 
                 '''aquire lock'''
                 ''''need better lock system right now no difference in performance'''

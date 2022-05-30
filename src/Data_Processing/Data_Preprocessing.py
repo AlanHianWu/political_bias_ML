@@ -65,18 +65,17 @@ class Preprocessing(object):
     
     # Remove special characters with threading
     def remove_special_characters_multi(self, text=None, remove_digits=True, text_length=10):
-        print('start remove 1')
         re = []
         with ThreadPoolExecutor(max_workers=10) as executor:
 
             '''need to change df at locations?  '''
             for t in self.multi_split(text, text_length):
-                re.append(executor.submit(self.remove_special_characters, (t, remove_digits)))
+                future = executor.submit(self.remove_special_characters, t, remove_digits)
                 '''they will finish at different times order matters ! '''
-                # re.append(future.result())
+                re.append(future.result())
            
         # returns a list of future objects
-        return re
+        return " ".join(re)
     
     def remove_special_characters_multi_all(self, path=None):
         '''should by default perfrom the preprocessing on the given file'''
@@ -224,7 +223,7 @@ class Preprocessing(object):
         current_dir =  os.path.abspath(os.path.dirname(__file__))
         dir_path = os.path.abspath(current_dir + "/../../Data")
         date = datetime.today().strftime('%Y_%m_%d')
-        self.file.to_csv(dir_path+'/preprocessed_data_'+date+'_.tsv', sep='\t')
+        self.file.to_csv(dir_path+'/preprocessed_data_'+date+'_.tsv', sep='\t',  index=False)
             
     
     
@@ -239,7 +238,7 @@ def main():
     # print(re)
     
     # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    # r = pp.remove_special_characters_multi(t)
+    pp.remove_special_characters_multi_all()
     # for f in r:
     #     print(f.result())
     

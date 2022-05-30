@@ -28,8 +28,6 @@ class Preprocessing(object):
         
         if file == None:
             self.file = self.get_latest_data_file()
-            '''add head'''
-            # self.file.loc[-1] = ['news', 'bias']
         else:
             try:
                 with open(file) as f:
@@ -53,7 +51,7 @@ class Preprocessing(object):
     def remove_special_characters(text, remove_digits=True):
         # pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
         # text = re.sub(pattern, '', text)
-        print('start remove 2', current_thread())
+        # print('start remove 2', current_thread())
 
         if not remove_digits:
                 pattern = r'[^a-zA-Z0-9\s]' 
@@ -84,12 +82,8 @@ class Preprocessing(object):
             df = self.file
         else:
             df = self.read_file(path)
-
-        df.dropna(inplace=True)
         
         df.apply(lambda row : self.remove_special_characters_multi(row[0]), axis=1)
-        
-        self.file = df
         
 
     '''split input to workers'''
@@ -144,6 +138,16 @@ class Preprocessing(object):
     def stem_words(self, text):
         stemmer = PorterStemmer()
         return stemmer.stem(text)
+    
+    def stem_words_df(self, path=None):
+        if path == None:
+            df = self.file
+        else:
+            df = self.read_file(path)
+        
+        df.apply(lambda row : self.stem_words(row[0]), axis=1)
+
+        
 
     '''lemmatization 
         resolving words to their dictionary form
@@ -157,13 +161,12 @@ class Preprocessing(object):
         return text.lower()
     
     '''remove white space / emtpy data'''
-    @staticmethod
     def remove_emtpy(self):
-        self.file = self.file.dropna(inplace=True)
+        self.file.dropna(inplace=True)
 
     '''pandas remove dups meathod call'''    
     def remove_dups(self):
-        self.file = self.file.drop_duplicates(subset='news',inplace=True)
+        self.file.drop_duplicates(subset='news',inplace=True)
     
     '''always a big headache, need to truncate the data so it fits the ram size and 
        retains the info'''
@@ -242,14 +245,16 @@ def main():
     # print(re)
     
     # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    # pp.remove_special_characters_multi_all()
+    pp.remove_emtpy()
+    pp.remove_special_characters_multi_all()
+    pp.remove_dups()
+    pp.stem_words_df()
     # for f in r:
     #     print(f.result())
     
     
     # print(f.head(2))
-    # pp.write_to_file()
-    pp.remove_dups()
+    pp.write_to_file()
     # print(pp.file_text().loc[0])
 
 if __name__ == '__main__':

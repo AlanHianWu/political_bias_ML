@@ -1,5 +1,6 @@
 import pandas as pd
 import re, os, glob
+from datetime import datetime
 
 import scipy as sp
 
@@ -48,7 +49,8 @@ class Preprocessing(object):
         self.workers = workers
 
     # Remove special characters
-    def remove_special_characters(self, text, remove_digits=True):
+    @staticmethod
+    def remove_special_characters(text, remove_digits=True):
         # pattern = r'[^a-zA-Z0-9\s]' if not remove_digits else r'[^a-zA-Z\s]'
         # text = re.sub(pattern, '', text)
         print('start remove 2', current_thread())
@@ -76,17 +78,13 @@ class Preprocessing(object):
         # returns a list of future objects
         return re
     
-    def test(self, path=None):
+    def remove_special_characters_multi_all(self, path=None):
         '''should by default perfrom the preprocessing on the given file'''
-        
-        print('test start!!')
         
         if path == None:
             df = self.file
         else:
             df = self.read_file(path)
-            
-            
 
         df.dropna(inplace=True)
         
@@ -156,6 +154,7 @@ class Preprocessing(object):
         return text.lower()
     
     '''remove white space / emtpy data'''
+    @staticmethod
     def remove_emtpy(self):
         self.file = self.file.dropna(inplace=True)
     
@@ -219,6 +218,13 @@ class Preprocessing(object):
         except Exception as e:
             print(e)
             return None
+    
+    '''write file to Data folder'''
+    def write_to_file(self):
+        current_dir =  os.path.abspath(os.path.dirname(__file__))
+        dir_path = os.path.abspath(current_dir + "/../../Data")
+        date = datetime.today().strftime('%Y_%m_%d')
+        self.file.to_csv(dir_path+'/preprocessed_data_'+date+'_.tsv', sep='\t')
             
     
     
@@ -237,12 +243,9 @@ def main():
     # for f in r:
     #     print(f.result())
     
-    print(pp.file_text().head(2))
-    pp.test()
-    print('AFTER')
-    print(pp.file_text().head(2))
     
     # print(f.head(2))
+    pp.write_to_file()
 
 
 if __name__ == '__main__':

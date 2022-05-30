@@ -29,13 +29,13 @@ class Preprocessing(object):
         if file == None:
             self.file = self.get_latest_data_file()
             '''add head'''
-            self.file.loc[-1] = ['news', 'bias']
+            # self.file.loc[-1] = ['news', 'bias']
         else:
             try:
                 with open(file) as f:
-                    self.file = pd.read_csv(f, sep='\t', encoding='latin-1')
+                    self.file = pd.read_csv(f, sep='\t', names=['news', 'bias'],encoding='latin-1')
                     '''add head'''
-                    self.file.loc[-1] = ['news', 'bias']
+                    # self.file.loc[-1] = ['news', 'bias']
             except Exception as e:
                 print('file does not found', e)
                 self.file = None
@@ -117,20 +117,24 @@ class Preprocessing(object):
         """custom function to remove the stopwords"""
         return " ".join([word for word in str(text).split() if word not in self.STOPWORDS])
     
-    def remove_stopwords_multi(self, text):
-        """custom function to remove the stopwords"""
+    # def remove_stopwords_multi(self, text):
+    #     """custom function to remove the stopwords"""
         
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            re = []
-            for t in self.multi_split(text, 2):
-                re.append(executor.submit(self.remove_stopwords, (t)))
-        return re
+    #     with ThreadPoolExecutor(max_workers=10) as executor:
+    #         re = []
+    #         for t in self.multi_split(text, 2):
+    #             re.append(executor.submit(self.remove_stopwords, (t)))
+    #     return re
     
     # '''yield all the rows from data frame'''
     # @staticmethod
     # def df_to_rows(df):
     #     for rows in df:
     #         yield rows.columns[0], rows.columns[1]
+    
+    '''pass in meathod and run threading with it'''
+    def general_threading(self, meathod, workers):
+        pass
 
 
     '''steming
@@ -156,10 +160,10 @@ class Preprocessing(object):
     @staticmethod
     def remove_emtpy(self):
         self.file = self.file.dropna(inplace=True)
-    
-    '''interesting one to do, needs to hard remove duplicates in the entire dataset'''
-    def remove_dups(self, text):
-        pass
+
+    '''pandas remove dups meathod call'''    
+    def remove_dups(self):
+        self.file = self.file.drop_duplicates(subset='news',inplace=True)
     
     '''always a big headache, need to truncate the data so it fits the ram size and 
        retains the info'''
@@ -198,7 +202,7 @@ class Preprocessing(object):
         latest_file = max(list_of_files, key=os.path.getctime)
 
         '''data not clean yet'''    
-        df = pd.read_csv(latest_file, sep='\t', encoding='latin-1')
+        df = pd.read_csv(latest_file, sep='\t', names=['news', 'bias'], encoding='latin-1')
 
         # print(df.head())
         
@@ -238,14 +242,15 @@ def main():
     # print(re)
     
     # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    pp.remove_special_characters_multi_all()
+    # pp.remove_special_characters_multi_all()
     # for f in r:
     #     print(f.result())
     
     
     # print(f.head(2))
-    pp.write_to_file()
-
+    # pp.write_to_file()
+    pp.remove_dups()
+    # print(pp.file_text().loc[0])
 
 if __name__ == '__main__':
     main()

@@ -13,13 +13,17 @@ from multiprocessing import Process
 
 '''stop words'''
 from nltk.corpus import stopwords
-# nltk.download('stopwords') '''might need to download or update stopwords'''
+
+# nltk.download('stopwords') # '''might need to download or update stopwords'''
 
 '''steming'''
 from nltk.stem import PorterStemmer
 
 '''lemmatization'''
 from nltk.stem import WordNetLemmatizer
+# import nltk
+# nltk.download('wordnet') # '''might need to download or update lemmatizer'''
+# nltk.download('omw-1.4')
 
 '''Class to preform data preprocessing'''
 class Preprocessing(object):
@@ -137,6 +141,7 @@ class Preprocessing(object):
         * it can suffer from over stemming or under stemming'''
     def stem_words(self, text):
         stemmer = PorterStemmer()
+        
         return stemmer.stem(text)
     
     def stem_words_df(self, path=None):
@@ -147,14 +152,21 @@ class Preprocessing(object):
         
         df.apply(lambda row : self.stem_words(row[0]), axis=1)
 
-        
 
     '''lemmatization 
         resolving words to their dictionary form
         much better but needs lots more power'''
     def lemma_words(self, text):
         lemmatizer = WordNetLemmatizer()
-        return lemmatizer.lemmatize(text)
+        return lemmatizer.lemmatize(text, pos ="a")
+
+    def lemma_words_df(self, path):
+        if path == None:
+                df = self.file
+        else:
+            df = self.read_file(path)
+        
+        df.apply(lambda row : self.lemma_words(row[0]), axis=1)
 
     '''case convert, convert all case of words to lower'''
     def lower_case(self, text):
@@ -206,8 +218,6 @@ class Preprocessing(object):
 
         '''data not clean yet'''    
         df = pd.read_csv(latest_file, sep='\t', names=['news', 'bias'], encoding='latin-1')
-
-        # print(df.head())
         
         '''returns dataframe'''
         return df
@@ -245,17 +255,24 @@ def main():
     # print(re)
     
     # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    pp.remove_emtpy()
-    pp.remove_special_characters_multi_all()
-    pp.remove_dups()
-    pp.stem_words_df()
+    # pp.remove_emtpy()
+    # pp.remove_special_characters_multi_all()
+    # pp.remove_dups()
+    # pp.stem_words_df()
     # for f in r:
     #     print(f.result())
     
     
     # print(f.head(2))
-    pp.write_to_file()
+    # pp.write_to_file()
     # print(pp.file_text().loc[0])
+    # t = '''Summary by Ground News The state's top election official said Wednesday that the margin between the top two candidates in last week's Republican primary for U.S. Senate is tight enough to trigger a statewide recount. The winner in the race until the recount is complete could take until June 8. Dr. Mehmet Oz, endorsed by President Donald Trump, led McCormick by 9,343, or 007 percentage points, as of Wednesday'''
+    # print(pp.stem_words(t))
+    print(pp.lemma_words('''better'''))
+    
+    # lemmatizer = WordNetLemmatizer()
+    
+    # print("better :", lemmatizer.lemmatize("better", pos ="a"))
 
 if __name__ == '__main__':
     main()

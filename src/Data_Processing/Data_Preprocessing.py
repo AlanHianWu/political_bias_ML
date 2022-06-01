@@ -141,8 +141,11 @@ class Preprocessing(object):
         * it can suffer from over stemming or under stemming'''
     def stem_words(self, text):
         stemmer = PorterStemmer()
-        
-        return stemmer.stem(text)
+        text = text.split()
+        res = []
+        for t in text:
+            res.append(stemmer.stem(t))
+        return " ".join(res)
     
     def stem_words_df(self, path=None):
         if path == None:
@@ -158,7 +161,12 @@ class Preprocessing(object):
         much better but needs lots more power'''
     def lemma_words(self, text):
         lemmatizer = WordNetLemmatizer()
-        return lemmatizer.lemmatize(text, pos ="a")
+        text = text.split()
+        res = []
+        for t in text:
+            '''lemmatize change and set pos= '''
+            res.append(lemmatizer.lemmatize(t))
+        return " ".join(res)
 
     def lemma_words_df(self, path):
         if path == None:
@@ -255,20 +263,20 @@ def main():
     # print(re)
     
     # t = '''one two three four five six seven eight nine ten eleven twelve thriteen ''' * 1000
-    # pp.remove_emtpy()
-    # pp.remove_special_characters_multi_all()
-    # pp.remove_dups()
-    # pp.stem_words_df()
+    pp.remove_emtpy()
+    pp.remove_special_characters_multi_all()
+    pp.remove_dups()
+    pp.stem_words_df()
     # for f in r:
     #     print(f.result())
     
     
     # print(f.head(2))
-    # pp.write_to_file()
+    pp.write_to_file()
     # print(pp.file_text().loc[0])
     # t = '''Summary by Ground News The state's top election official said Wednesday that the margin between the top two candidates in last week's Republican primary for U.S. Senate is tight enough to trigger a statewide recount. The winner in the race until the recount is complete could take until June 8. Dr. Mehmet Oz, endorsed by President Donald Trump, led McCormick by 9,343, or 007 percentage points, as of Wednesday'''
     # print(pp.stem_words(t))
-    print(pp.lemma_words('''better'''))
+    # print(pp.lemma_words('''better cats'''))
     
     # lemmatizer = WordNetLemmatizer()
     

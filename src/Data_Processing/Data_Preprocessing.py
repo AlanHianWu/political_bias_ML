@@ -266,7 +266,7 @@ def main():
     pp.remove_emtpy()
     pp.remove_special_characters_multi_all()
     pp.remove_dups()
-    pp.stem_words_df()
+    # pp.stem_words_df()
     # for f in r:
     #     print(f.result())
     

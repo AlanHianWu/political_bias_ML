@@ -14,7 +14,7 @@ import pandas as pd
 
 '''class that uses the newpaper3k to get the latest news articles from the json file in scaper'''
 class get_news():
-    def __init__(self, workers=100):
+    def __init__(self, workers=1000):
         self.data = {}
         self.working_urls = []
         self.workers = workers
@@ -109,10 +109,11 @@ class get_news():
             date = datetime.today().strftime('%Y_%m_%d')
             
             current_dir =  os.path.abspath(os.path.dirname(__file__))
-            Data_dir = os.path.abspath(current_dir + "/../../Data/")
-                
+            Data_dir = os.path.abspath(current_dir + "/../../../Data")
+            
+            # print('1 writing to: ', Data_dir)
 
-            with open(Data_dir + 'articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
+            with open(Data_dir + '/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                 '''need to fix write utf-8 error'''
                 tsv_output = csv.writer(f_output, delimiter='\t')
                 tsv_output.writerow(data)
@@ -131,7 +132,7 @@ class get_news():
             
                 article.text = " ".join(article.text.split())
                 current_dir =  os.path.abspath(os.path.dirname(__file__))
-                Data_dir = os.path.abspath(current_dir + "/../../../Data/")
+                Data_dir = os.path.abspath(current_dir + "/../../../Data")
 
                 '''aquire lock'''
                 ''''need better lock system right now no difference in performance'''
@@ -140,6 +141,7 @@ class get_news():
                     date = datetime.today().strftime('%Y_%m_%d')
                     with open(Data_dir + '/articles_data_'+date+'_.tsv', 'a', newline='') as f_output:
                         '''need to fix write utf-8 error'''
+                        # print('2 writing to: ', Data_dir)
                         tsv_output = csv.writer(f_output, delimiter='\t')
                         tsv_output.writerow(data)
 
@@ -173,7 +175,12 @@ class get_news():
         else:
             return False
 
-
+# def test():
+    
+#     current_dir =  os.path.abspath(os.path.dirname(__file__))
+#     Data_dir = os.path.abspath(current_dir + "/../../../Data/")
+    
+#     print(Data_dir)
 
 def main():
     gn = get_news()

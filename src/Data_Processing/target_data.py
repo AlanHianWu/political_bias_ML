@@ -13,10 +13,12 @@ def main():
     
     dp = Preprocessing(get_latest_file())
     
-    dp.remove_special_characters_multi()
-    
-    dp.file()
-    
+    dp.remove_emtpy()
+    dp.remove_special_characters_multi_all()
+    dp.remove_dups()
+
+
+    dp.write_to_file()
     
 
     

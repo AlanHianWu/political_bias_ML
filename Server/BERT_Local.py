@@ -13,10 +13,18 @@ class BERT_trainer(object):
     def regular_encoder(self, text, tokenizer, maxlen=512):
         
         pass
-    def bert_encode(string_list, tokenizer, max_seq_length):
+    
+    def encode_names(self, n, tokenizer):
+       tokens = list(tokenizer.tokenize(n))
+       tokens.append('[SEP]')
+    
+       return tokenizer.convert_tokens_to_ids(tokens)
+   
+   
+    def bert_encode(self, string_list, tokenizer, max_seq_length):
         num_examples = len(string_list)
   
-        string_tokens = tf.ragged.constant([encode_names(n, tokenizer) for n in np.array(string_list)])
+        string_tokens = tf.ragged.constant([self.encode_names(n, tokenizer) for n in np.array(string_list)])
 
         cls = [tokenizer.convert_tokens_to_ids(['[CLS]'])]*string_tokens.shape[0]
         input_word_ids = tf.concat([cls, string_tokens], axis=-1)
@@ -49,6 +57,10 @@ class BERT_trainer(object):
 
 
 def main():
+    bt = BERT_trainer()
+    tokenizerSaved = bert.tokenization.FullTokenizer(vocab_file=os.path.join("../" + model_fname, 'assets/vocab.txt'),do_lower_case=False)
+    res = bt.bert_encode('I hate my life what should i do from now on??', tokenizer=tokenizerSaved, max_seq_length=426)
+    print(res)
     pass
 
 
